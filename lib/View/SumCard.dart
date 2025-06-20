@@ -32,7 +32,7 @@ class _SumCardState extends State<SumCard> {
           child: Column(
             children: [
               Text('Einkaufspreis: ${UnitHelper.formatCurrency(dataProvider.getCalculatedEk(), true)}'),
-              Text('Verkaufspreis: ${UnitHelper.formatCurrency(dataProvider.getCalculatedVk(true), true)}'),
+              Text('Verkaufspreis: ${UnitHelper.formatCurrency(dataProvider.getCalculatedVk(with_fees: true), true)}'),
             ],
           ),
         ),

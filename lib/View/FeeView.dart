@@ -107,7 +107,7 @@ class _FeeViewState extends State<FeeView> {
                             : Container(),
                         Text(
                             UnitHelper.formatCurrency(
-                                fee.getFee(dataProvider.getCalculatedVk(), fee.on_ek),
+                                fee.getFee(dataProvider.getCalculatedEk(), on_ek: fee.on_ek),
                                 true),
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold)),

@@ -37,7 +37,7 @@ class _AccessoryViewState extends State<AccessoryView> {
       children: [
         SumCard(),
         Expanded(
-          child: (dataProvider.materialList.materials.length == 0)
+          child: (dataProvider.accessoryList.accessories.isEmpty)
               ? EmptyWidget()
               : ListView.builder(
                   itemCount: dataProvider.accessoryList.accessories.length,

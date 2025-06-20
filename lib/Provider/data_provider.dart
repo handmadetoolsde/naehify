@@ -4,26 +4,68 @@ import 'package:sewingcalculator/Entity/AccessoryEntity.dart';
 import 'package:sewingcalculator/Entity/FeeEntity.dart';
 import 'package:sewingcalculator/Entity/Material.dart';
 import 'package:sewingcalculator/Helper/FeeHelper.dart';
+import 'package:sewingcalculator/Helper/ResultHelper.dart';
 
+import '../Helper/Units.dart';
 
 class DataProvider with ChangeNotifier {
   MaterialList materialList = MaterialList();
   AccessoryList accessoryList = AccessoryList();
   FeeList feeList = FeeList();
+  ResultHelper helper = ResultHelper();
 
   bool ust = true;
 
   MaterialList get materials => materialList;
+
   AccessoryList get accessories => accessoryList;
+
   FeeList get fees => feeList;
+
+  ResultHelper getPositions() {
+    helper.removeByType("material");
+    for (MaterialEntity e in materialList.materials) {
+      helper.add(ResultRow(
+          type: "material",
+          amount: e.getSum(),
+          description:
+              '${UnitHelper.formatCurrency(e.amount, false)}${e.unit.unit} ${e.type}'));
+    }
+
+    helper.removeByType("accessory");
+    for (AccessoryEntity e in accessoryList.accessories) {
+      helper.add(ResultRow(
+          type: "accessory",
+          amount: e.getSum(),
+          description:
+              '${UnitHelper.formatCurrency(e.amount, false)}${e.unit.unit} ${e.type}'));
+    }
+
+    helper.removeByType("fee");
+    for (FeeEntity e in FeeHelper.fees) {
+      if (e.is_active) {
+        helper.add(ResultRow(
+            type: "fee",
+            amount: e.getFee(getCalculatedVk(with_fees: false), all: true),
+            description: '${e.type}'));
+      }
+    }
+
+    return helper;
+  }
+
+  List<FeeEntity> getActiveFees() {
+    List<FeeEntity> fees = [];
+    for (FeeEntity e in FeeHelper.fees) {
+      if (e.is_active) {
+        fees.add(e);
+      }
+    }
+    return fees;
+  }
 
   void addMaterial(MaterialEntity material) {
     materialList.add(material);
-    notifyListeners();
-  }
-
-  void setUSt(bool ust) {
-    ust = ust;
     notifyListeners();
   }
 
@@ -51,20 +93,30 @@ class DataProvider with ChangeNotifier {
     notifyListeners();
   }
 
-
-
-  double getCalculatedVk([bool with_fees = false]) {
+  double getCalculatedVk({bool with_fees = false, bool ust = true}) {
     double vk = getCalculatedEk();
 
-    if (ust) {
+    if (with_fees) {
+      vk += feeList.getSum(getCalculatedEk());
+    }
+
+    debugPrint("VK: (fees: ${with_fees.toString()})" + vk.toString());
+
+    if (ust && this.ust) {
       vk = vk * 1.19;
     }
 
-    if (with_fees) {
-      vk += feeList.getSum(getCalculatedVk());
-    }
-
     return vk;
+  }
+
+  void setUst(bool v) {
+    this.ust = v;
+    notifyListeners();
+  }
+
+  double getUst() {
+    if (!this.ust) return 0;
+    return (getCalculatedVk(with_fees: true, ust: false) / 100) * 19;
   }
 
   double getCalculatedEk() {
@@ -74,13 +126,11 @@ class DataProvider with ChangeNotifier {
     ek += accessoryList.getSum();
 
     for (var f in FeeHelper.fees) {
-      ek += f.getFee(ek, true);
+      ek += f.getFee(ek, on_ek: true);
     }
 
-
+    debugPrint("EK: " + ek.toString());
 
     return ek;
   }
-
-
 }
