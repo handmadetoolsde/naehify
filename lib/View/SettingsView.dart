@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
 import 'package:sewingcalculator/Entity/Material.dart';
-import 'package:sewingcalculator/Helper/GermanFloatValidator.dart';
-import 'package:sewingcalculator/Helper/Units.dart';
 import 'package:sewingcalculator/Provider/data_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +17,7 @@ class SettingsView extends StatelessWidget {
   bool getTutorialFinishedState() {
     debugPrint('function: getTutorialFinishedState');
     if (prefs.containsKey('tutorial_finished').toString() == "true") {
-      debugPrint('return: ' + prefs.getBool('tutorial_finished').toString());
+      debugPrint('return: ${prefs.getBool('tutorial_finished')}');
       if (prefs.getBool('tutorial_finished').toString() == "true") {
         return true;
       }

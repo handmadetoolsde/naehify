@@ -7,10 +7,10 @@ class ResultSumCard extends StatelessWidget {
   final List<ResultRow> items;
 
   const ResultSumCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.items,
-  }) : super(key: key);
+  });
 
   // Hilfsmethode zur Währungsformatierung
   String _formatCurrency(double amount) {

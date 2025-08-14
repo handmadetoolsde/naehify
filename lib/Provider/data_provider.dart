@@ -47,7 +47,7 @@ class DataProvider with ChangeNotifier {
         helper.add(ResultRow(
             type: "fee",
             amount: e.getFee(getCalculatedVk(with_fees: false), all: true),
-            description: '${e.type}'));
+            description: e.type));
       }
     }
 
@@ -100,7 +100,7 @@ class DataProvider with ChangeNotifier {
       vk += feeList.getSum(getCalculatedEk());
     }
 
-    debugPrint("VK: (fees: ${with_fees.toString()})" + vk.toString());
+    debugPrint("VK: (fees: ${with_fees.toString()})$vk");
 
     if (ust && this.ust) {
       vk = vk * 1.19;
@@ -110,12 +110,12 @@ class DataProvider with ChangeNotifier {
   }
 
   void setUst(bool v) {
-    this.ust = v;
+    ust = v;
     notifyListeners();
   }
 
   double getUst() {
-    if (!this.ust) return 0;
+    if (!ust) return 0;
     return (getCalculatedVk(with_fees: true, ust: false) / 100) * 19;
   }
 
@@ -129,7 +129,7 @@ class DataProvider with ChangeNotifier {
       ek += f.getFee(ek, on_ek: true);
     }
 
-    debugPrint("EK: " + ek.toString());
+    debugPrint("EK: $ek");
 
     return ek;
   }

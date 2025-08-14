@@ -37,7 +37,7 @@ class _MaterialViewState extends State<MaterialView> {
       children: [
         SumCard(),
         Expanded(
-          child: (dataProvider.materialList.materials.length == 0)
+          child: (dataProvider.materialList.materials.isEmpty)
               ? EmptyWidget()
               : ListView.builder(
                   itemCount: dataProvider.materialList.materials.length,

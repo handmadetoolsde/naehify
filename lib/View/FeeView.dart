@@ -122,8 +122,8 @@ class _FeeViewState extends State<FeeView> {
   }
 
   Future<double?> _showCurrencyInputDialog(BuildContext context) async {
-    final _formKey = GlobalKey<FormState>();
-    String? _inputValue;
+    final formKey = GlobalKey<FormState>();
+    String? inputValue;
 
     return showDialog<double>(
       context: context,
@@ -132,7 +132,7 @@ class _FeeViewState extends State<FeeView> {
         return AlertDialog(
           title: Text('Geldbetrag eingeben'),
           content: Form(
-            key: _formKey,
+            key: formKey,
             child: TextFormField(
               decoration: InputDecoration(
                 labelText: 'Betrag',
@@ -157,7 +157,7 @@ class _FeeViewState extends State<FeeView> {
                 return null;
               },
               onSaved: (value) {
-                _inputValue = value;
+                inputValue = value;
               },
             ),
           ),
@@ -171,10 +171,10 @@ class _FeeViewState extends State<FeeView> {
             ElevatedButton(
               child: Text('Speichern'),
               onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
+                if (formKey.currentState!.validate()) {
+                  formKey.currentState!.save();
                   // Ersetze Komma durch Punkt für die double-Konvertierung
-                  final normalizedValue = _inputValue!.replaceAll(',', '.');
+                  final normalizedValue = inputValue!.replaceAll(',', '.');
                   Navigator.of(context).pop(double.parse(normalizedValue));
                 }
               },

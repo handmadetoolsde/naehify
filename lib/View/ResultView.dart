@@ -6,7 +6,8 @@ import 'package:sewingcalculator/Helper/PdfService.dart';
 import 'package:sewingcalculator/Helper/ResultHelper.dart';
 import 'package:sewingcalculator/Helper/Units.dart';
 import 'package:sewingcalculator/Provider/data_provider.dart';
-import 'package:sewingcalculator/View/SumCard.dart';
+import 'package:sewingcalculator/Provider/database_provider.dart';
+import 'package:sewingcalculator/View/PaywallPage.dart';
 
 import 'ResultSumCard.dart';
 
@@ -20,6 +21,18 @@ class ResultView extends StatefulWidget {
 class _ResultViewState extends State<ResultView> {
   // Method to generate and download PDF
   Future<void> _generateAndDownloadPdf(BuildContext context, DataProvider dataProvider) async {
+    // Check if user has premium subscription
+    final databaseProvider = DatabaseProvider();
+    final isPremium = await databaseProvider.isPremium();
+
+    // If user doesn't have premium, show paywall
+    if (!isPremium) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => const PaywallPage()),
+      );
+      return;
+    }
+
     try {
       // Show loading indicator
       showDialog(
@@ -123,7 +136,7 @@ class _ResultViewState extends State<ResultView> {
         fee_vk.add(ResultRow(
           type: 'fee_ek', 
           amount: e.getFee(dataProvider.getCalculatedEk(), on_ek: e.on_ek), 
-          description: e.type + ' ${UnitHelper.formatCurrency(e.fix_fee, true)} + ${UnitHelper.formatCurrency(e.percentage, false)}%'
+          description: '${e.type} ${UnitHelper.formatCurrency(e.fix_fee, true)} + ${UnitHelper.formatCurrency(e.percentage, false)}%'
         ));
       }
     }
