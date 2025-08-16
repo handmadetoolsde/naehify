@@ -45,11 +45,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           fit: BoxFit.contain,
         );
       case 'offers':
-        return OnboardingVectors.offersVector(context, size: width);
+        return Image.asset(
+          'images/onboarding/todo.jpg',
+          width: width,
+          height: width,
+          fit: BoxFit.contain,
+        );
       case 'fees':
-        return OnboardingVectors.feesVector(context, size: width);
-      case 'premium':
-        return OnboardingVectors.premiumVector(context, size: width);
+        return Image.asset(
+          'images/onboarding/diagram.jpg',
+          width: width,
+          height: width,
+          fit: BoxFit.contain,
+        );
+        case 'premium':
+          return Image.asset(
+            'images/naehify_app_logo.jpg',
+            width: width,
+            height: width,
+            fit: BoxFit.contain,
+          );
       default:
         return SizedBox(width: width, height: width);
     }
@@ -98,16 +113,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           decoration: pageDecoration,
           footer: Padding(
             padding: const EdgeInsets.only(top: 24.0),
-            child: ElevatedButton(
-              onPressed: () => _onIntroEnd(context, showPaywall: true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
-                minimumSize: const Size.fromHeight(50),
-              ),
-              child: const Text(
-                'Premium entdecken',
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+            child:
+
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () => _onIntroEnd(context, showPaywall: true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size.fromHeight(50),
+
+                ),
+                child: const Text(
+                  'Premium entdecken',
+                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ),

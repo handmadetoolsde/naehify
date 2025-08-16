@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -173,27 +174,23 @@ class _SettingsPageState extends State<SettingsPage> {
 
       // Convert to JSON
       final jsonData = jsonEncode(backupData);
+      final bytes = Uint8List.fromList(utf8.encode(jsonData));
 
-      // Get the documents directory
+      // Optional: also keep an internal copy in app documents directory
       final directory = await getApplicationDocumentsDirectory();
       final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').replaceAll('.', '-');
       final filePath = '${directory.path}/naehify_backup_$timestamp.json';
+      await File(filePath).writeAsBytes(bytes);
 
-      // Write to file
-      final file = File(filePath);
-      await file.writeAsBytes(utf8.encode(jsonData));
-
-      // Ask user where to save the file
-      final String? outputPath = await FilePicker.platform.saveFile(
+      // Ask user where to save the file (Android/iOS require bytes)
+      final String? savedPathOrUri = await FilePicker.platform.saveFile(
         dialogTitle: 'Backup speichern',
         fileName: 'naehify_backup_$timestamp.json',
+        bytes: bytes,
       );
 
-      if (outputPath != null) {
-        // Copy the file to the selected location
-        await file.copy(outputPath);
-
-        // Show success message
+      if (savedPathOrUri != null) {
+        // Show success message (file written by plugin)
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -479,7 +476,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 16),
+                            /*const SizedBox(height: 16),
                             ElevatedButton.icon(
                               onPressed: _showOnboardingAgain,
                               icon: const Icon(Icons.refresh),
@@ -487,12 +484,12 @@ class _SettingsPageState extends State<SettingsPage> {
                               style: ElevatedButton.styleFrom(
                                 minimumSize: const Size.fromHeight(40),
                               ),
-                            ),
+                            ),*/
                           ],
                         ),
                       ),
                     ),
-/*
+
 
                     const SizedBox(height: 16),
 
@@ -536,8 +533,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ],
                         ),
                       ),
-                    ),*/
-
+                    ),
                     const SizedBox(height: 24),
 
                     // Backup Section
