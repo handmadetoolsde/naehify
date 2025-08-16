@@ -185,14 +185,14 @@ class _PaywallPageState extends State<PaywallPage> {
                 description: 'Erstelle so viele Kalkulationen wie du möchtest',
               ),
               _buildFeatureItem(
-                icon: Icons.cloud_done,
-                title: 'Automatische Speicherung',
-                description: 'Alle deine Kalkulationen werden automatisch gespeichert',
+                icon: Icons.money_outlined,
+                title: 'Kleinunternehmer',
+                description: 'Berechnung für Kleinunternehmer ohne Umsatzsteuer',
               ),
               _buildFeatureItem(
-                icon: Icons.support_agent,
-                title: 'Premium Support',
-                description: 'Erhalte bevorzugten Support bei Fragen',
+                icon: Icons.backup,
+                title: 'Backup und Wiederherstellung deiner Daten',
+                description: 'Sichere deine Daten gegen einen Verlust',
               ),
 
               const SizedBox(height: 32),
