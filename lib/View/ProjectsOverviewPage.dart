@@ -5,6 +5,7 @@ import 'package:sewingcalculator/Database/database.dart';
 import 'package:sewingcalculator/Provider/database_provider.dart';
 import 'package:sewingcalculator/View/PaywallPage.dart';
 import 'package:sewingcalculator/View/SettingsPage.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProjectsOverviewPage extends StatefulWidget {
   const ProjectsOverviewPage({super.key});
@@ -20,6 +21,9 @@ class _ProjectsOverviewPageState extends State<ProjectsOverviewPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
   String _query = '';
+
+  static const String _supportEmail = 'support@naehify.de';
+
 
   @override
   void initState() {
@@ -38,6 +42,26 @@ class _ProjectsOverviewPageState extends State<ProjectsOverviewPage> {
     _searchController.dispose();
     super.dispose();
   }
+
+  Future<void> _contactSupport() async {
+    final subject = Uri.encodeComponent('Frage zu Nähify');
+    final body = Uri.encodeComponent(
+      'Hallo Team,\n\nich habe eine Frage zu ...\n\n'
+          'App-Version: <VERSION>\n'
+          'Gerät/OS: <GERÄT UND VERSION>\n'
+          '\nVielen Dank!',
+    );
+
+    final uri = Uri(
+      scheme: 'mailto',
+      path: _supportEmail,
+      query: 'subject=$subject&body=$body',
+    );
+
+    await launchUrl(uri);
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +112,14 @@ class _ProjectsOverviewPageState extends State<ProjectsOverviewPage> {
               );
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.mail_outline),
+            tooltip: 'Support kontaktieren',
+            onPressed: _contactSupport,
+          )
+
         ],
+
       ),
       body: StreamBuilder<List<Project>>(
         stream: _databaseProvider.watchAllProjects(),
