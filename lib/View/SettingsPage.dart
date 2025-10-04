@@ -493,6 +493,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
                     const SizedBox(height: 16),
 
+                    /// Entwicklermodus Card
+                    /***
                     Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -533,7 +535,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ],
                         ),
                       ),
-                    ),
+                    ),**/
                     const SizedBox(height: 24),
 
                     // Backup Section

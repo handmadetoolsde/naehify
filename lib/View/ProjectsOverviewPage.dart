@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sewingcalculator/Database/database.dart';
 import 'package:sewingcalculator/Provider/database_provider.dart';
 import 'package:sewingcalculator/View/PaywallPage.dart';
 import 'package:sewingcalculator/View/SettingsPage.dart';
-import 'package:intl/intl.dart';
 
 class ProjectsOverviewPage extends StatefulWidget {
   const ProjectsOverviewPage({super.key});
@@ -16,19 +16,69 @@ class ProjectsOverviewPage extends StatefulWidget {
 class _ProjectsOverviewPageState extends State<ProjectsOverviewPage> {
   late DatabaseProvider _databaseProvider;
 
+  // Neu: Suche
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
+  String _query = '';
+
   @override
   void initState() {
     super.initState();
     _databaseProvider = Provider.of<DatabaseProvider>(context, listen: false);
+
+    _searchController.addListener(() {
+      setState(() {
+        _query = _searchController.text;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Meine Kalkulationen'),
+        title:
+            _isSearching
+                ? TextField(
+                  controller: _searchController,
+                  autofocus: true,
+                  textInputAction: TextInputAction.search,
+                  decoration: InputDecoration(
+                    hintText: 'Projekte suchen...',
+                    border: InputBorder.none,
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon:
+                        (_query.isNotEmpty)
+                            ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () => _searchController.clear(),
+                            )
+                            : null,
+                  ),
+                )
+                : const Text('Nähify Projekte'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          IconButton(
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            tooltip: _isSearching ? 'Suche beenden' : 'Suche',
+            onPressed: () {
+              setState(() {
+                if (_isSearching) {
+                  _isSearching = false;
+                  _searchController.clear();
+                } else {
+                  _isSearching = true;
+                }
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
@@ -51,14 +101,19 @@ class _ProjectsOverviewPageState extends State<ProjectsOverviewPage> {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          final projects = snapshot.data ?? [];
+          final allProjects = snapshot.data ?? [];
 
-          if (projects.isEmpty) {
+          if (allProjects.isEmpty) {
+            // Keine Daten insgesamt (nicht nur wegen Filter)
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.calculate_outlined, size: 80, color: Colors.grey),
+                  const Icon(
+                    Icons.calculate_outlined,
+                    size: 80,
+                    color: Colors.grey,
+                  ),
                   const SizedBox(height: 16),
                   const Text(
                     'Keine Kalkulationen vorhanden',
@@ -66,17 +121,35 @@ class _ProjectsOverviewPageState extends State<ProjectsOverviewPage> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Erstelle eine neue Kalkulation mit dem + Button',
+                    'Erstelle eine neues Projekt mit dem + Button',
                     style: TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
                     icon: const Icon(Icons.add),
-                    label: const Text('Neue Kalkulation'),
+                    label: const Text('Neues Projekt'),
                     onPressed: () => _createNewProject(context),
                   ),
                 ],
               ),
+            );
+          }
+
+          // Filtern nach Query (nur Name; passe bei Bedarf an)
+          final projects =
+              (_query.isEmpty)
+                  ? allProjects
+                  : allProjects
+                      .where(
+                        (p) =>
+                            p.name.toLowerCase().contains(_query.toLowerCase()),
+                      )
+                      .toList();
+
+          if (projects.isEmpty) {
+            // Es gibt Daten, aber keine Treffer für die aktuelle Suche
+            return const Center(
+              child: Text('Keine Treffer für die aktuelle Suche'),
             );
           }
 
@@ -94,9 +167,7 @@ class _ProjectsOverviewPageState extends State<ProjectsOverviewPage> {
                   subtitle: Text(
                     'Erstellt am: ${DateFormat('dd.MM.yyyy').format(project.createdAt)}',
                   ),
-                  leading: const CircleAvatar(
-                    child: Icon(Icons.calculate),
-                  ),
+                  leading: const CircleAvatar(child: Icon(Icons.calculate)),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -106,7 +177,8 @@ class _ProjectsOverviewPageState extends State<ProjectsOverviewPage> {
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete),
-                        onPressed: () => _confirmDeleteProject(context, project),
+                        onPressed:
+                            () => _confirmDeleteProject(context, project),
                       ),
                     ],
                   ),
@@ -119,7 +191,7 @@ class _ProjectsOverviewPageState extends State<ProjectsOverviewPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _createNewProject(context),
-        tooltip: 'Neue Kalkulation',
+        tooltip: 'Neues Projekt',
         child: const Icon(Icons.add),
       ),
     );
@@ -153,40 +225,38 @@ class _ProjectsOverviewPageState extends State<ProjectsOverviewPage> {
       if (!mounted) return;
 
       // Navigate to calculation screen with the new project ID
-      Navigator.pushNamed(
-        context, 
-        '/calculation',
-        arguments: projectId,
-      );
+      Navigator.pushNamed(context, '/calculation', arguments: projectId);
     }
   }
 
   void _openProject(BuildContext context, Project project) {
     // Navigate to calculation screen with the project ID
-    Navigator.pushNamed(
-      context, 
-      '/calculation',
-      arguments: project.id,
-    );
+    Navigator.pushNamed(context, '/calculation', arguments: project.id);
   }
 
-  Future<void> _confirmDeleteProject(BuildContext context, Project project) async {
+  Future<void> _confirmDeleteProject(
+    BuildContext context,
+    Project project,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Kalkulation löschen'),
-        content: Text('Möchtest du die Kalkulation "${project.name}" wirklich löschen?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Abbrechen'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Projekt löschen'),
+            content: Text(
+              'Möchtest du das Projekt "${project.name}" wirklich löschen?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Abbrechen'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Löschen'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Löschen'),
-          ),
-        ],
-      ),
     );
 
     if (confirmed == true) {
@@ -213,7 +283,7 @@ class _NewProjectDialogState extends State<_NewProjectDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Neue Kalkulation'),
+      title: const Text('Neues Projekt'),
       content: Form(
         key: _formKey,
         child: TextFormField(

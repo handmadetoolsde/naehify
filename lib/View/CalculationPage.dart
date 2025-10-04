@@ -117,7 +117,7 @@ class _CalculationPageState extends State<CalculationPage> {
       print('Error loading project: $e');
       setState(() {
         _isLoading = false;
-        title = "Neue Kalkulation";
+        title = "Neues Projekt";
       });
     }
   }

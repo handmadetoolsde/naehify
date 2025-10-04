@@ -241,7 +241,6 @@ class _PaywallPageState extends State<PaywallPage> {
 
               // Terms and conditions
               const Text(
-                'Mit dem Kauf akzeptierst du unsere Nutzungsbedingungen und Datenschutzrichtlinien. '
                 'Abonnements verlängern sich automatisch, können aber jederzeit in den Einstellungen deines App Stores gekündigt werden.',
                 style: TextStyle(
                   fontSize: 12,
